@@ -1,0 +1,15 @@
+create table chart_patterns_bkp as (select * from public.chart_patterns);
+
+create table nifty_1hr_images_bkp as (select * from public.nifty_1hr_images);
+
+create table nifty_15min_images_bkp as (select * from public.nifty_15min_images);
+
+create table nifty_candle_images_bkp as (select * from public.nifty_candle_images);
+
+create table nifty_day_images_bkp as (select * from public.nifty_day_images);
+
+create table nifty_day_prices_bkp as (select * from public.nifty_day_prices);
+
+create table pattern_fingerprints_bkp as (select * from public.pattern_fingerprints);
+
+create table similarity_results_bkp as (select * from public.similarity_results);
