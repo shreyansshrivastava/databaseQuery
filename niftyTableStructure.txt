@@ -1,0 +1,214 @@
+-- Table: public.similarity_results
+
+-- DROP TABLE IF EXISTS public.similarity_results;
+
+CREATE TABLE IF NOT EXISTS public.similarity_results
+(
+    trade_date date,
+    timeframe character varying(10) COLLATE pg_catalog."default",
+    similarity double precision,
+    matched_date date,
+    next_day_return double precision,
+    confidence character varying(10) COLLATE pg_catalog."default",
+    CONSTRAINT uq_similarity_unique UNIQUE (trade_date, timeframe)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.similarity_results
+    OWNER to postgres;
+	
+================================================================================================================================	
+-- Table: public.pattern_fingerprints
+
+-- DROP TABLE IF EXISTS public.pattern_fingerprints;
+
+CREATE TABLE IF NOT EXISTS public.pattern_fingerprints
+(
+    id integer NOT NULL DEFAULT nextval('pattern_fingerprints_id_seq'::regclass),
+    pattern_name text COLLATE pg_catalog."default",
+    symbol text COLLATE pg_catalog."default",
+    timeframe text COLLATE pg_catalog."default",
+    shape_vector double precision[],
+    return_total double precision,
+    volatility double precision,
+    slope double precision,
+    max_drawdown double precision,
+    range_ratio double precision,
+    body_ratio double precision,
+    prev_trend_slope double precision,
+    trend_strength double precision,
+    vwap_distance double precision,
+    range_compression double precision,
+    volume_contraction double precision,
+    volume_expansion double precision,
+    pattern_length integer,
+    swing_count integer,
+    symmetry_score double precision,
+    next_candle_up boolean,
+    next_5_up boolean,
+    breakout_happened boolean,
+    pattern_completed boolean,
+    created_at timestamp without time zone DEFAULT now(),
+    pattern_time timestamp without time zone,
+    CONSTRAINT pattern_fingerprints_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.pattern_fingerprints
+    OWNER to postgres;
+-- Index: idx_fp_symbol_tf_time
+
+-- DROP INDEX IF EXISTS public.idx_fp_symbol_tf_time;
+
+CREATE INDEX IF NOT EXISTS idx_fp_symbol_tf_time
+    ON public.pattern_fingerprints USING btree
+    (symbol COLLATE pg_catalog."default" ASC NULLS LAST, timeframe COLLATE pg_catalog."default" ASC NULLS LAST, pattern_time DESC NULLS FIRST)
+    WITH (fillfactor=100, deduplicate_items=True)
+    TABLESPACE pg_default;
+	
+===========================================================================================================================================
+-- Table: public.nifty_day_prices
+
+-- DROP TABLE IF EXISTS public.nifty_day_prices;
+
+CREATE TABLE IF NOT EXISTS public.nifty_day_prices
+(
+    candle_date date NOT NULL,
+    open double precision,
+    high double precision,
+    low double precision,
+    close double precision,
+    volume bigint,
+    CONSTRAINT nifty_day_prices_pkey PRIMARY KEY (candle_date)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.nifty_day_prices
+    OWNER to postgres;
+	
+==============================================================================================================================================
+-- Table: public.nifty_day_images
+
+-- DROP TABLE IF EXISTS public.nifty_day_images;
+
+CREATE TABLE IF NOT EXISTS public.nifty_day_images
+(
+    id integer NOT NULL DEFAULT nextval('nifty_15min_images_id_seq'::regclass),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    candle_date date,
+    "interval" character varying(100) COLLATE pg_catalog."default",
+    image bytea,
+    close_price bytea,
+    CONSTRAINT nifty_day_images_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.nifty_day_images
+    OWNER to postgres;
+	
+=================================================================================================================================================
+-- Table: public.nifty_candle_images
+
+-- DROP TABLE IF EXISTS public.nifty_candle_images;
+
+CREATE TABLE IF NOT EXISTS public.nifty_candle_images
+(
+    id integer NOT NULL DEFAULT nextval('nifty_candle_images_id_seq'::regclass),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    date date,
+    "interval" character varying(100) COLLATE pg_catalog."default",
+    image bytea,
+    CONSTRAINT nifty_candle_images_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.nifty_candle_images
+    OWNER to postgres;
+===================================================================================================================================================
+-- Table: public.nifty_15min_images
+
+-- DROP TABLE IF EXISTS public.nifty_15min_images;
+
+CREATE TABLE IF NOT EXISTS public.nifty_15min_images
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    trade_date date,
+    candle_time timestamp without time zone,
+    "interval" character varying(10) COLLATE pg_catalog."default",
+    image bytea,
+    close_price bytea,
+    candle_count integer,
+    CONSTRAINT nifty_15min_images_pkey PRIMARY KEY (id),
+    CONSTRAINT nifty_15min_day_trade_date_candle_time_key UNIQUE (trade_date, candle_time)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.nifty_15min_images
+    OWNER to postgres;
+	
+==================================================================================================================================================
+-- Table: public.nifty_1hr_images
+
+-- DROP TABLE IF EXISTS public.nifty_1hr_images;
+
+CREATE TABLE IF NOT EXISTS public.nifty_1hr_images
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    trade_date date,
+    candle_time timestamp without time zone,
+    "interval" character varying(10) COLLATE pg_catalog."default",
+    image bytea,
+    close_price bytea,
+    candle_count integer,
+    CONSTRAINT nifty_1hr_images_pkey PRIMARY KEY (id),
+    CONSTRAINT nifty_1hr_day_trade_date_candle_time_key UNIQUE (trade_date, candle_time)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.nifty_1hr_images
+    OWNER to postgres;
+-- Index: uniq_1hr_progress
+
+-- DROP INDEX IF EXISTS public.uniq_1hr_progress;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_1hr_progress
+    ON public.nifty_1hr_images USING btree
+    (trade_date ASC NULLS LAST, candle_count ASC NULLS LAST)
+    WITH (fillfactor=100, deduplicate_items=True)
+    TABLESPACE pg_default;
+	
+==================================================================================================================================================
+-- Table: public.chart_patterns
+
+-- DROP TABLE IF EXISTS public.chart_patterns;
+
+CREATE TABLE IF NOT EXISTS public.chart_patterns
+(
+    id bigint NOT NULL DEFAULT nextval('chart_patterns_id_seq'::regclass),
+    symbol text COLLATE pg_catalog."default" NOT NULL,
+    "interval" text COLLATE pg_catalog."default" NOT NULL,
+    pattern_time timestamp without time zone NOT NULL,
+    shape_vector double precision[] NOT NULL,
+    range_ratio double precision,
+    volatility double precision,
+    next_candle_up boolean,
+    next_5_up boolean,
+    breakout boolean,
+    completed boolean,
+    created_at timestamp without time zone DEFAULT now(),
+    CONSTRAINT chart_patterns_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.chart_patterns
+    OWNER to postgres;
+===================================================================================================================================================
+
