@@ -13,3 +13,5 @@ create table nifty_day_prices_bkp as (select * from public.nifty_day_prices);
 create table pattern_fingerprints_bkp as (select * from public.pattern_fingerprints);
 
 create table similarity_results_bkp as (select * from public.similarity_results);
+
+create table company_listings_bkp as (select * from public.company_listings);

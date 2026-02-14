@@ -224,3 +224,25 @@ CREATE TABLE IF NOT EXISTS public.company_listings
     face_value numeric
 )
 
+======================================================================================================================================================
+-- Table: public.company_listings
+
+-- DROP TABLE IF EXISTS public.company_listings;
+
+CREATE TABLE IF NOT EXISTS public.company_listings
+(
+    id integer,
+    symbol character varying(20) COLLATE pg_catalog."default",
+    company_name character varying(255) COLLATE pg_catalog."default",
+    series character varying(5) COLLATE pg_catalog."default",
+    date_of_listing date,
+    paid_up_value numeric,
+    market_lot integer,
+    isin_number character varying(20) COLLATE pg_catalog."default",
+    face_value numeric
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.company_listings
+    OWNER to postgres;
