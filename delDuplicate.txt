@@ -1,0 +1,102 @@
+WITH cte AS (
+    SELECT id, -- Replace 'id' with your Primary Key column
+    ROW_NUMBER() OVER (
+        PARTITION BY pattern_time, shape_vector, range_ratio -- The columns that are duplicated
+        ORDER BY id -- Determines which duplicate to keep
+    ) AS row_num
+    FROM public.chart_patterns
+)
+DELETE FROM public.chart_patterns 
+WHERE id IN (SELECT id FROM cte WHERE row_num > 1);
+===============================================================================================================================
+WITH cte AS (
+    SELECT id, -- Replace 'id' with your Primary Key column
+    ROW_NUMBER() OVER (
+        PARTITION BY  shape_vector,slope,pattern_time -- The columns that are duplicated
+        ORDER BY id -- Determines which duplicate to keep
+    ) AS row_num
+    FROM public.pattern_fingerprints
+
+)
+DELETE FROM public.pattern_fingerprints
+
+WHERE id IN (SELECT id FROM cte WHERE row_num > 1);
+====================================================================================================================================
+WITH cte AS (
+    SELECT candle_date, -- Replace 'id' with your Primary Key column
+    ROW_NUMBER() OVER (
+        PARTITION BY  open,high,low,close,volume -- The columns that are duplicated
+        ORDER BY candle_date -- Determines which duplicate to keep
+    ) AS row_num
+    FROM public.nifty_day_prices
+
+)
+DELETE FROM public.nifty_day_prices
+
+WHERE candle_date IN (SELECT candle_date FROM cte WHERE row_num > 1);
+=========================================================================================================================================
+WITH cte AS (
+    SELECT id, -- Replace 'id' with your Primary Key column
+    ROW_NUMBER() OVER (
+        PARTITION BY  candle_date,interval,image,close_price -- The columns that are duplicated
+        ORDER BY candle_date -- Determines which duplicate to keep
+    ) AS row_num
+    FROM public.nifty_day_images
+
+)
+DELETE FROM public.nifty_day_images
+
+WHERE id IN (SELECT id FROM cte WHERE row_num > 1);
+===========================================================================================================================================
+WITH cte AS (
+    SELECT id, -- Replace 'id' with your Primary Key column
+    ROW_NUMBER() OVER (
+        PARTITION BY  date,interval,image -- The columns that are duplicated
+        ORDER BY id -- Determines which duplicate to keep
+    ) AS row_num
+    FROM public.nifty_candle_images
+
+)
+DELETE FROM public.nifty_candle_images
+
+WHERE id IN (SELECT id FROM cte WHERE row_num > 1);
+========================================================================================================================================
+WITH cte AS (
+    SELECT id, -- Replace 'id' with your Primary Key column
+    ROW_NUMBER() OVER (
+        PARTITION BY  candle_time,interval,image,close_price,trade_date -- The columns that are duplicated
+        ORDER BY id -- Determines which duplicate to keep
+    ) AS row_num
+    FROM public.nifty_15min_images
+
+)
+DELETE FROM public.nifty_15min_images
+
+WHERE id IN (SELECT id FROM cte WHERE row_num > 1);
+=========================================================================================================================================
+WITH cte AS (
+    SELECT id, -- Replace 'id' with your Primary Key column
+    ROW_NUMBER() OVER (
+        PARTITION BY  candle_time,interval,image,close_price,trade_date -- The columns that are duplicated
+        ORDER BY id -- Determines which duplicate to keep
+    ) AS row_num
+    FROM public.nifty_1hr_images
+
+)
+DELETE FROM public.nifty_1hr_images
+
+WHERE id IN (SELECT id FROM cte WHERE row_num > 1);
+===============================================================================================================================================
+WITH cte AS (
+    SELECT id, -- Replace 'id' with your Primary Key column
+    ROW_NUMBER() OVER (
+        PARTITION BY  company_name,symbol -- The columns that are duplicated
+        ORDER BY id -- Determines which duplicate to keep
+    ) AS row_num
+    FROM public.company_listings
+
+)
+DELETE FROM public.company_listings
+
+WHERE id IN (SELECT id FROM cte WHERE row_num > 1);
+========================================================================================================================================
